@@ -1,3 +1,3 @@
-# Dockit
+# mkit
 
-Release for handle docker cli more efficient
+Release for handle multi clis and become more efficient.
