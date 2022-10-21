@@ -1,6 +1,8 @@
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 
+from core.mkgit import MkGit
+
 class Mkit(click.MultiCommand):
 
     @click.group(
@@ -22,9 +24,8 @@ class Mkit(click.MultiCommand):
         pass
 
     @cli.command()
-    def test():
-        click.echo("789")
-
+    def gitadd():
+        MkGit.add()
 
 if __name__ == '__main__':
     Mkit.cli()
