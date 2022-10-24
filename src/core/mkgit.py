@@ -21,7 +21,7 @@ class MkGit:
         if cls._PATH_SUB:
             os.system(f'git restore --stage {" ".join(cls._PATH_SUB_LS)}')
 
-        if len(sys.argv) > 1 and sys.argv[1] == '-e':
+        if len(sys.argv) > 1 and sys.argv[1] == '-i':
             args = sys.argv[2:]
             os.system(f'git restore --stage {" ".join(args)}')
 

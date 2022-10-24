@@ -10,6 +10,7 @@ class Mkit(click.MultiCommand):
         help_headers_color='yellow',
         help_options_color='green',
     )
+    @click.version_option(version='0.0.1', prog_name='mkit')
     def cli():
         """
         \b
@@ -23,8 +24,10 @@ class Mkit(click.MultiCommand):
         """
         pass
 
+    @click.option('-i', '--igore', 'ignore', help='ignore files')
     @cli.command()
-    def gitadd():
+    def gitadd(ignore):
+        """ Auto add all files to git and ignore submodules """
         MkGit.add()
 
 if __name__ == '__main__':
