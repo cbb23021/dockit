@@ -1,3 +1,18 @@
+"""
+    | ┏┓       ┏┓
+    ┏━┛┻━━━━━━━┛┻━┓
+    ┃      ☃      ┃
+    ┃  ┳┛     ┗┳  ┃
+    ┃      ┻      ┃
+    ┗━┓         ┏━┛
+    | ┗┳        ┗━┓
+    |  ┃          ┣┓
+    |  ┃          ┏┛
+    |  ┗┓┓┏━━━━┳┓┏┛
+    |   ┃┫┫    ┃┫┫
+    |   ┗┻┛    ┗┻┛
+    God Bless,Never Bug.
+"""
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 
@@ -10,6 +25,7 @@ class Mkit(click.MultiCommand):
         help_headers_color='yellow',
         help_options_color='green',
     )
+    # @click.command(context_settings=dict(help_option_names=['-h', '--help']))
     @click.version_option(version='0.0.1', prog_name='mkit')
     def cli():
         """
@@ -24,11 +40,16 @@ class Mkit(click.MultiCommand):
         """
         pass
 
-    @click.option('-i', '--igore', 'ignore', help='ignore files')
     @cli.command()
+    @click.option('-i', '--igore', 'ignore', help='ignore files')
     def gitadd(ignore):
         """ Auto add all files to git and ignore submodules """
         MkGit.add()
+
+    @cli.command()
+    def gitfetch():
+        """ sort out current branchs """
+        MkGit.fetch()
 
 if __name__ == '__main__':
     Mkit.cli()
