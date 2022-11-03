@@ -37,7 +37,7 @@ class Mkit(click.MultiCommand):
            / / / / / / ,< / / /_
           /_/ /_/ /_/_/|_/_/\__/
 
-        FILENAME is the name of the file to check.
+        A useful tool in terminal. Include Git.
         """
         pass
 
@@ -66,6 +66,11 @@ class Mkit(click.MultiCommand):
         Swap current branch to target branch.
         """
         MkGit.swap(ignore=ignore, branch_name=branch_name)
+
+    @cli.command()
+    def gitpull():
+        """ pull latest update from repo """
+        MkGit.pull()
 
 
 if __name__ == '__main__':

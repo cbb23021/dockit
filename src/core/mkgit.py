@@ -1,8 +1,6 @@
 import os
 import re
 import subprocess
-import sys
-from getopt import getopt
 
 import click
 from colorama import Back, Fore, Style
@@ -10,11 +8,11 @@ from colorama import Back, Fore, Style
 
 class MkGit:
     _PATH_MAIN = os.popen('git rev-parse --show-toplevel').read().strip()
+    _PATH_MAIN_CONFIG = f'{_PATH_MAIN}/.git/config'
     _PATH_SUB_LS = os.popen(
         "git config --file .gitmodules --get-regexp path | awk '{ print $2 }'"
     ).read().splitlines()
     _PATH_SUB = list()
-    _WT_ON_BK = Fore.WHITE + Back.LIGHTBLACK_EX
     _RESET = Style.RESET_ALL
 
     @classmethod
@@ -66,16 +64,23 @@ class MkGit:
         return msg
 
     @classmethod
-    def fetch(cls):
+    def fetch(cls, show=True):
         """ sort out current branchs """
+        prefix = cls._get_color_prefix(color='LIGHTBLUE_EX',
+                                       color_prefix=Fore.WHITE,
+                                       prefix_msg='fetch')
         try:
             info = subprocess.getoutput('git fetch --prune')
-        except:
+        except Exception:
             print('No Git detect!')
             return
 
-        if not info:
-            info = 'Nothing To Update.'
+        msg = '--- Update ---' if info else 'Nothing To Update.'
+        print(f'{prefix}{msg}')
+
+        if not show and not info:
+            return
+
         if 'deleted' in info:
             info = MkGit._re_words(info=info)
         print(info)
@@ -88,17 +93,20 @@ class MkGit:
             print(msg)
 
     @classmethod
-    def _get_colored_repo(cls):
-        repo = os.path.basename(os.getcwd())
-        return (f'\n{Fore.LIGHTBLACK_EX}'
-                f'{cls._WT_ON_BK}{repo}'
+    def _get_color_prefix(cls, color=None, color_prefix=None, prefix_msg=None):
+        prefix = prefix_msg or os.path.basename(os.getcwd())
+        color_prefix = color_prefix + getattr(Back, color) + Style.BRIGHT
+        color = getattr(Fore, color, None)
+        return (f'\n{color}'
+                f'{color_prefix}{prefix}'
                 f'{cls._RESET}'
-                f'{Fore.LIGHTBLACK_EX}'
+                f'{color}'
                 f'{cls._RESET} ')
 
     @classmethod
     def _checkout(cls, branch):
-        colored_repo = cls._get_colored_repo()
+        colored_repo = cls._get_color_prefix(color='LIGHTBLACK_EX',
+                                             color_prefix=Fore.WHITE)
         info = subprocess.getoutput(f'git checkout {branch}')
         try:
             if 'Already on' in info:
@@ -117,7 +125,8 @@ class MkGit:
 
     @classmethod
     def _current_branch(cls):
-        colored_repo = cls._get_colored_repo()
+        colored_repo = cls._get_color_prefix(color='LIGHTBLACK_EX',
+                                             color_prefix=Fore.WHITE)
         try:
             output = str(
                 subprocess.check_output(['git', 'branch'],
@@ -133,24 +142,74 @@ class MkGit:
         print(f'{colored_repo}{status}')
 
     @classmethod
-    def swap(cls, ignore, branch_name):
+    def swap(cls, branch_name, ignore=list(), level='all'):
         """s branch_name
         swap current branch to target branch
         """
-        cls._checkout(branch=branch_name)
+        if level == 'all' or level == '1':
+            cls._checkout(branch=branch_name)
 
+        if level == 'all' or level == '2':
+            cls._get_submodules()
+            if not cls._PATH_SUB:
+                return
+            for path in cls._PATH_SUB:
+                os.chdir(path)
+                if branch_name in ignore:
+                    cls._current_branch()
+                cls._checkout(branch=branch_name)
+
+    @classmethod
+    def _init(cls):
+        if not os.path.exists(cls._PATH_MAIN_CONFIG):
+            print('No Git Config Found!')
+            return
         cls._get_submodules()
         if not cls._PATH_SUB:
             return
+
+        has_files = None
         for path in cls._PATH_SUB:
             os.chdir(path)
-            if branch_name in ignore:
-                cls._current_branch()
-            cls._checkout(branch=branch_name)
+            has_files = True if not subprocess('ls') else True
+        if not has_files:
+            return
+
+        color_prefix = cls._get_color_prefix(color='MAGENTA',
+                                             color_prefix=Fore.WHITE,
+                                             prefix_msg='init')
+        print(f'{color_prefix}Git Submodeles')
+        os.system('git submodule update --init --recursive')
+        print(f'{color_prefix}Finished.\n')
+
+    @staticmethod
+    def _re_sub_words(replacement, info, color):
+        pattern = re.compile(rf'([{replacement}]+)([\n-)])')
+        return pattern.sub(rf'{color}\1{Fore.RESET}\2', info)
+
+    @classmethod
+    def _git_pull(cls):
+        info = subprocess.getoutput('git pull')
+        info = cls._re_sub_words(replacement='-', info=info, color=Fore.RED)
+        info = cls._re_sub_words(replacement='+', info=info, color=Fore.GREEN)
+        print(f'{info}\n')
 
     @classmethod
     def pull(cls):
         """ pull all file from Git repo """
+        cls._init()
+
+        os.chdir(cls._PATH_MAIN)
+        cls.fetch(show=False)
+        cls.swap(branch_name='develop', level='1')
+        cls._git_pull()
+
+        if not cls._PATH_SUB:
+            return
+        for path in cls._PATH_SUB:
+            os.chdir(path)
+            cls.swap(branch_name='develop', level='1')
+            cls._git_pull()
 
 
 if __name__ == '__main__':
