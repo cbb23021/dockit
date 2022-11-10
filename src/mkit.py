@@ -18,6 +18,8 @@ from click_help_colors import HelpColorsCommand, HelpColorsGroup
 
 from core.mkgit import MkGit
 
+__version__ = '0.1.0'
+
 
 class Mkit(click.MultiCommand):
 
@@ -27,7 +29,7 @@ class Mkit(click.MultiCommand):
         help_options_color='green',
         context_settings=dict(help_option_names=['-h', '--help']),
     )
-    @click.version_option(version='0.0.1', prog_name='mkit')
+    @click.version_option(version=__version__, prog_name='mkit')
     def cli():
         """
         \b

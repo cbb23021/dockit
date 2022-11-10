@@ -7,11 +7,11 @@ from colorama import Back, Fore, Style
 
 
 class MkGit:
-    _PATH_MAIN = os.popen('git rev-parse --show-toplevel').read().strip()
+    _PATH_MAIN = subprocess.getoutput('git rev-parse --show-toplevel').strip()
     _PATH_MAIN_CONFIG = f'{_PATH_MAIN}/.git/config'
-    _PATH_SUB_LS = os.popen(
+    _PATH_SUB_LS = subprocess.getoutput(
         "git config --file .gitmodules --get-regexp path | awk '{ print $2 }'"
-    ).read().splitlines()
+    ).splitlines()
     _PATH_SUB = list()
     _RESET = Style.RESET_ALL
 
@@ -22,18 +22,31 @@ class MkGit:
         ]
 
     @classmethod
+    def _re_restores(cls, msg, restores):
+        pattern = re.compile(r"(pathspec ')(.*)(')")
+        for _ in pattern.findall(msg):
+            restores.remove(_[1])
+
+    @classmethod
     def add(cls, ignore):
         """ Auto add all files to git except submodules """
         cls._get_submodules()
-        os.system('git add .')
+        subprocess.run('git add .', shell=True)
+        restores = ['git', 'restore', '--stage']
 
         if cls._PATH_SUB:
-            os.system(f'git restore --stage {" ".join(cls._PATH_SUB_LS)}')
+            restores.extend(cls._PATH_SUB_LS)
 
         if ignore:
-            os.system(f'git restore --stage {" ".join(ignore)}')
+            restores.extend(ignore)
 
-        os.system('git status')
+        e = subprocess.run(restores, stderr=subprocess.PIPE, text=True).stderr
+        if e:
+            cls._re_restores(msg=e, restores=restores)
+            subprocess.run(restores)
+
+        subprocess.run('git status', shell=True)
+        print(e)
 
     @staticmethod
     def _re_words(info):
@@ -119,7 +132,7 @@ class MkGit:
                 status = f'Error on {Fore.RED}{branch}{cls._RESET}\n{info}'
 
         except Exception:
-            status = f'Error on {Fore.RED}{branch}{cls._RESET}\n{info}'
+            status = f'Except Error on {Fore.RED}{branch}{cls._RESET}\n{info}'
 
         print(f'{colored_repo}{status}')
 
@@ -154,7 +167,10 @@ class MkGit:
             if not cls._PATH_SUB:
                 return
             for path in cls._PATH_SUB:
-                os.chdir(path)
+                try:
+                    os.chdir(path)
+                except Exception:
+                    continue
                 if branch_name in ignore:
                     cls._current_branch()
                 cls._checkout(branch=branch_name)
@@ -170,28 +186,31 @@ class MkGit:
 
         has_files = None
         for path in cls._PATH_SUB:
-            os.chdir(path)
-            has_files = True if not subprocess('ls') else True
-        if not has_files:
+            try:
+                os.chdir(path)
+                has_files = False if not subprocess.getoutput('ls') else True
+            except Exception:
+                return
+        if has_files:
             return
 
         color_prefix = cls._get_color_prefix(color='MAGENTA',
                                              color_prefix=Fore.WHITE,
                                              prefix_msg='init')
         print(f'{color_prefix}Git Submodeles')
-        os.system('git submodule update --init --recursive')
+        subprocess.run('git submodule update --init --recursive', shell=True)
         print(f'{color_prefix}Finished.\n')
 
     @staticmethod
-    def _re_sub_words(replacement, info, color):
+    def _re_pull_words(replacement, info, color):
         pattern = re.compile(rf'([{replacement}]+)([\n-)])')
         return pattern.sub(rf'{color}\1{Fore.RESET}\2', info)
 
     @classmethod
     def _git_pull(cls):
         info = subprocess.getoutput('git pull')
-        info = cls._re_sub_words(replacement='-', info=info, color=Fore.RED)
-        info = cls._re_sub_words(replacement='+', info=info, color=Fore.GREEN)
+        info = cls._re_pull_words(replacement='-', info=info, color=Fore.RED)
+        info = cls._re_pull_words(replacement='+', info=info, color=Fore.GREEN)
         print(f'{info}\n')
 
     @classmethod
@@ -207,10 +226,9 @@ class MkGit:
         if not cls._PATH_SUB:
             return
         for path in cls._PATH_SUB:
-            os.chdir(path)
+            try:
+                os.chdir(path)
+            except Exception:
+                continue
             cls.swap(branch_name='develop', level='1')
             cls._git_pull()
-
-
-if __name__ == '__main__':
-    MkGit.swap()

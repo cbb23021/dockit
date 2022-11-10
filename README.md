@@ -1,3 +1,3 @@
 # mkit
 
-Release for handle multi clis and become more efficient.
+A useful tool for control clis in terminal. Include (Git).
