@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import find_packages, setup
 
-from src import mkit
+from .src import mkit
 
 with open("README.md", "r") as f:
     long_description = f.read()
