@@ -62,10 +62,7 @@ class Mkie(click.MultiCommand):
                   multiple=True)
     @click.argument('branch_name', required=True)
     def s(ignore, branch_name):
-        """s branch_name
-
-        Swap current branch to target branch.
-        """
+        """ Swap current branch to target branch. """
         MkGit.swap(ignore=ignore, branch_name=branch_name)
 
     @cli.command()
