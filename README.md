@@ -7,9 +7,14 @@ A useful tool for control clis in terminal.
 If you already know how to install python packages, then you can install it via pip.
 
 ```
-pip install mkie
+pip3 install mkie
 ```
 
+## Upgrade
+
+```
+pip3 install --upgrade mkie
+```
 ## Features
 
 `mkie` is control clis:
