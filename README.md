@@ -1,4 +1,4 @@
-# mkit
+# mkie
 
 A useful tool for control clis in terminal.
 
@@ -7,15 +7,15 @@ A useful tool for control clis in terminal.
 If you already know how to install python packages, then you can install it via pip.
 
 ```
-pip install mkit
+pip install mkie
 ```
 
 ## Features
 
-`mkit` is control clis:
+`mkie` is control clis:
 - Git
   - `gitadd`: Auto add all files to git and ignore submodules.
   - `gitfetch`: Sort out local branchs.
-  - `s`: Swap current branch to target branch.
   - `gitpull`: Pull latest update from git repo.
+  - `s`: Swap current branch to target branch.
 

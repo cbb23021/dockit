@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 from setuptools import find_packages, setup
 
-from .src import mkit
+import mkie
 
 with open("README.md", "r") as f:
     long_description = f.read()
 
-setup(name='mkit',
-      version=mkit.__version__,
-      description=mkit.__doc__,
+setup(name='mkie',
+      version=mkie.__version__,
+      description=mkie.__doc__,
       long_description=long_description,
       long_description_content_type='text/markdown',
       author='Michael Chou',
       author_email='snoopy02m@gmail.com',
-      url='https://github.com/cbb23021/mkit',
+      url='https://github.com/cbb23021/mkie',
       packages=find_packages(),
       license='MIT',
       python_requires='>=3.7',
@@ -31,5 +31,5 @@ setup(name='mkit',
           'Topic :: Terminals',
       ],
       entry_points={
-          'console_scripts': ['mkit = mkit.__main__:cli'],
+          'console_scripts': ['mkie = mkie.__main__:Mkie.cli'],
       })

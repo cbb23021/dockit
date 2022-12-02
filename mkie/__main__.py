@@ -16,11 +16,11 @@
 import click
 from click_help_colors import HelpColorsCommand, HelpColorsGroup
 
-from .. import mkit
-from ..core.mkgit import MkGit
+import mkie
+from mkie.core.mkgit import MkGit
 
 
-class Mkit(click.MultiCommand):
+class Mkie(click.MultiCommand):
 
     @click.group(
         cls=HelpColorsGroup,
@@ -28,17 +28,17 @@ class Mkit(click.MultiCommand):
         help_options_color='green',
         context_settings=dict(help_option_names=['-h', '--help']),
     )
-    @click.version_option(version=mkit.__version__, prog_name='mkit')
+    @click.version_option(version=mkie.__version__, prog_name='mkie')
     def cli():
         """
         \b
-                        __   _ __
-             ____ ___  / /__(_) /_
-            / __ `__ \/ //_/ / __/
-           / / / / / / ,< / / /_
-          /_/ /_/ /_/_/|_/_/\__/
+                      __   _
+           ____ ___  / /__(_)__
+          / __ `__ \/ //_/ / _ \
+         / / / / / / ,< / /  __/
+        /_/ /_/ /_/_/|_/_/\___/
 
-        A useful tool in terminal. Include Git.
+        A useful tool for control clis in terminal.
         """
         pass
 
@@ -75,4 +75,4 @@ class Mkit(click.MultiCommand):
 
 
 if __name__ == '__main__':
-    Mkit.cli()
+    Mkie.cli()
