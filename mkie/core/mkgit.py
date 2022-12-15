@@ -40,13 +40,17 @@ class MkGit:
         if ignore:
             restores.extend(ignore)
 
+        if len(restores) == 3:
+            subprocess.run('git status', shell=True)
+            return
+
         e = subprocess.run(restores, stderr=subprocess.PIPE, text=True).stderr
         if e:
             cls._re_restores(msg=e, restores=restores)
             subprocess.run(restores)
 
         subprocess.run('git status', shell=True)
-        print(e)
+        print(e or None)
 
     @staticmethod
     def _re_words(info):

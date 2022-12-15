@@ -15,6 +15,7 @@
 """
 import click
 from click_help_colors import HelpColorsCommand, HelpColorsGroup
+from importlib_metadata import version
 
 import mkie
 from mkie.core.mkgit import MkGit
@@ -28,7 +29,7 @@ class Mkie(click.MultiCommand):
         help_options_color='green',
         context_settings=dict(help_option_names=['-h', '--help']),
     )
-    @click.version_option(version=mkie.__version__, prog_name='mkie')
+    @click.version_option(version=version('mkie'), prog_name='mkie')
     def cli():
         """
         \b

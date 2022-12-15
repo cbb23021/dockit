@@ -15,12 +15,13 @@ pip3 install mkie
 ```
 pip3 install --upgrade mkie
 ```
+
 ## Features
 
 `mkie` is control clis:
+
 - Git
   - `gitadd`: Auto add all files to git and ignore submodules.
   - `gitfetch`: Sort out local branchs.
   - `gitpull`: Pull latest update from git repo.
   - `s`: Swap current branch to target branch.
-
