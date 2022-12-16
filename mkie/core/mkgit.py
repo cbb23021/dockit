@@ -45,12 +45,14 @@ class MkGit:
             return
 
         e = subprocess.run(restores, stderr=subprocess.PIPE, text=True).stderr
-        if e:
-            cls._re_restores(msg=e, restores=restores)
-            subprocess.run(restores)
+        if not e:
+            subprocess.run('git status', shell=True)
+            return
 
+        cls._re_restores(msg=e, restores=restores)
+        subprocess.run(restores)
         subprocess.run('git status', shell=True)
-        print(e or None)
+        print(e)
 
     @staticmethod
     def _re_words(info):
