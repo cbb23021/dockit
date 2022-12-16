@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Import importlib-metadata for version display.
+
 ### Changed
 
 - Import `peotry` package as env, build and publish.
