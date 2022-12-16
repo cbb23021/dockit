@@ -1,12 +1,17 @@
-# general things to ignore
-build/
-dist/
-*.egg-info/
-*.egg
+*~
+# C extensions
+*.so
+# Byte-compiled / optimized / DLL files
 *.py[cod]
 __pycache__/
-*.so
-*~
+
+# Distribution / packaging
+build/
+dist/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
 
 # Files to ignore
 tmp*.*
