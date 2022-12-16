@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.3] - 2022-12-17
+
 ### Added
 
 - Import importlib-metadata for version display.
