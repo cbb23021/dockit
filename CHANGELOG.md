@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 
 - Removed `pipenv` related files. (pipfile, pipfile.lock)
+- Removed setup.* file due to unused.
 
 ## [0.1.2] - 2022-12-02
 
