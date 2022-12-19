@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fix `gitadd` incorrect display error.
 
+### Added
+
+- Add auto create new branch when swap branch.
+
 ## [0.1.3] - 2022-12-17
 
 ### Added

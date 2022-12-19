@@ -123,24 +123,57 @@ class MkGit:
                 f'{cls._RESET} ')
 
     @classmethod
+    def _draw(cls, color=None, msg=None):
+        return f'{color}{msg}{cls._RESET}'
+
+    @classmethod
     def _checkout(cls, branch):
         colored_repo = cls._get_color_prefix(color='LIGHTBLACK_EX',
                                              color_prefix=Fore.WHITE)
-        info = subprocess.getoutput(f'git checkout {branch}')
-        try:
-            if 'Already on' in info:
-                status = f'Already on {Fore.CYAN}{branch}{cls._RESET}'
+        # """ check exist """
+        branchs = subprocess.getoutput(
+            "git for-each-ref "
+            "--sort=-committerdate refs/heads/ "
+            "--format='%(refname:short)'").splitlines()
 
-            elif 'Switched to' in info:
-                status = f'Switched to {Fore.YELLOW}{branch}{cls._RESET}'
+        if branch in branchs:
+            # """ checkout branch """
+            info = subprocess.getoutput(f'git checkout {branch}')
+            extra = ''
+            try:
+                if 'Already on' in info:
+                    status = 'Already on '
+                    color = Fore.CYAN
 
-            else:
-                status = f'Error on {Fore.RED}{branch}{cls._RESET}\n{info}'
+                elif 'Switched to' in info:
+                    status = 'Switched to '
+                    color = Fore.YELLOW
 
-        except Exception:
-            status = f'Except Error on {Fore.RED}{branch}{cls._RESET}\n{info}'
+                else:
+                    status = 'Error on '
+                    color = Fore.RED
+                    extra = f'\n{info}'
 
-        print(f'{colored_repo}{status}')
+            except Exception:
+                status = 'Except Error on '
+                color = Fore.RED
+                extra = f'\n{info}'
+
+            print(f'{colored_repo}{status}{cls._draw(color, branch)}{extra}')
+            return
+
+        # """ create new branch """
+        draw_branch = cls._draw(Fore.CYAN, branch)
+        msg = cls._draw(Fore.RED, 'Not Exist')
+        print(f'\n< Branch: {draw_branch} > {msg}.')
+
+        click.echo(f'Do you wanna create < Branch: {draw_branch} > [y/N]:')
+        create = click.getchar()
+        if create == 'y':
+            info = subprocess.getoutput(f'git checkout -b {branch}')
+            if 'Switched to' in info:
+                info = f'Switched to {cls._draw(Fore.YELLOW, branch)}'
+            print(f'{colored_repo}{info}')
 
     @classmethod
     def _current_branch(cls):
@@ -153,10 +186,10 @@ class MkGit:
                                         universal_newlines=True))
             branch = [a for a in output.split('\n') if a.find('*') >= 0][0]
             current_branch = branch[branch.find('*') + 2:]
-            status = f'Stay on {Fore.GREEN}{current_branch}{cls._RESET}'
+            status = f'Stay on {cls._draw(Fore.GREEN, current_branch)}'
 
         except Exception:
-            status = f'Error on {Fore.RED}info{cls._RESET}\n{output}'
+            status = f'Error on {cls._draw(Fore.RED, "info")}\n{output}'
 
         print(f'{colored_repo}{status}')
 
@@ -164,6 +197,8 @@ class MkGit:
     def swap(cls, branch_name, ignore=list(), level='all'):
         """s branch_name
         swap current branch to target branch
+
+        ignore: Ignore specific submodule.
         """
         if level == 'all' or level == '1':
             cls._checkout(branch=branch_name)
@@ -173,12 +208,14 @@ class MkGit:
             if not cls._PATH_SUB:
                 return
             for path in cls._PATH_SUB:
+                sub_name = path.split('/')[-1]
+                if sub_name in ignore:
+                    cls._current_branch()
+                    continue
                 try:
                     os.chdir(path)
                 except Exception:
                     continue
-                if branch_name in ignore:
-                    cls._current_branch()
                 cls._checkout(branch=branch_name)
 
     @classmethod
