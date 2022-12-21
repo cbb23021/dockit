@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.4] - 2022-12-21
+
 ### Fix
 
 - Fix `gitadd` incorrect display error.
