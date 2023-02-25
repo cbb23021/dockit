@@ -263,7 +263,6 @@ class MkGit:
 
         os.chdir(cls._PATH_MAIN)
         cls.fetch(show=False)
-        cls.swap(branch_name='develop', level='1')
         cls._git_pull()
 
         if not cls._PATH_SUB:
@@ -273,5 +272,4 @@ class MkGit:
                 os.chdir(path)
             except Exception:
                 continue
-            cls.swap(branch_name='develop', level='1')
             cls._git_pull()
