@@ -18,6 +18,7 @@ from click_help_colors import HelpColorsCommand, HelpColorsGroup
 from importlib_metadata import version
 
 import mkie
+from mkie.core.mkdk import Mkdk
 from mkie.core.mkgit import MkGit
 
 
@@ -70,6 +71,15 @@ class Mkie(click.MultiCommand):
     def gitpull():
         """ pull latest update from repo """
         MkGit.pull()
+
+    @click.option('-f',
+                  '--format',
+                  help='pretty print container cols, default:"{{.ID}}\t{{.Names}}\t{{.Ports}}\t{{.Image}}"')
+    @click.option('--pattern', help='rg pattern word container name')
+    @cli.command()
+    def dps(format, pattern):
+        """ list docker containers """
+        Mkdk.ps(format=format, pattern=pattern)
 
 
 if __name__ == '__main__':
