@@ -1,5 +1,10 @@
 import os
 import subprocess
+from pathlib import Path
+
+from colorama import Fore, Style
+
+from .toolkit import Colored
 
 
 class Mkdk:
@@ -10,21 +15,51 @@ class Mkdk:
     @classmethod
     def ps(cls, format, pattern):
         format = format or cls._PS_FORMAT
-        cmd = ['docker', 'ps', '--format', format]
+        _cmd = ['docker', 'ps', '--format', format]
 
         if pattern:
-            cmd.extend(['--filter', f'name={pattern}'])
+            _cmd.extend(['--filter', f'name={pattern}'])
 
-        subprocess.run(cmd)
+        subprocess.run(_cmd)
 
     @classmethod
     def build(cls):
-        subprocess.run('docker-compose build', shell=True)
+        subprocess.run(['docker-compose', 'build'])
 
     @classmethod
-    def up(cls):
-        subprocess.run('docker-compose up -d', shell=True)
+    def up(cls, project):
+        _cmd = ['docker-compose',  'up', '-d']
+        if project:
+            _cmd.extend(['--project-name', project])
+
+        project_name = project or Path.cwd().name
+        color_prefix = Style.RESET_ALL + Fore.BLACK
+        prefix = Colored.get_color_prefix(color='LIGHTYELLOW_EX',
+                                          color_prefix=color_prefix,
+                                          prefix_msg='🐳 Docker ⬆ ',
+                                          bottom=True,
+                                          bottom_color='LIGHTBLUE_EX',
+                                          bottom_prefix=Fore.BLACK,
+                                          bottom_msg=project_name)
+
+        print(prefix)
+        subprocess.run(_cmd)
 
     @classmethod
-    def down(cls):
-        subprocess.run('docker-compose down', shell=True)
+    def down(cls, project):
+        _cmd = ['docker-compose',  'down']
+        if project:
+            _cmd.extend(['--project-name', project])
+
+        project_name = project or Path.cwd().name
+        color_prefix = Style.RESET_ALL + Fore.BLACK
+        prefix = Colored.get_color_prefix(color='LIGHTGREEN_EX',
+                                          color_prefix=color_prefix,
+                                          prefix_msg='🐳 Docker ⬇ ',
+                                          bottom=True,
+                                          bottom_color='LIGHTBLUE_EX',
+                                          bottom_prefix=Fore.BLACK,
+                                          bottom_msg=project_name)
+
+        print(prefix)
+        subprocess.run(_cmd)

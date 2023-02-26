@@ -5,6 +5,8 @@ import subprocess
 import click
 from colorama import Back, Fore, Style
 
+from .toolkit import Colored
+
 
 class MkGit:
     _PATH_MAIN = subprocess.getoutput('git rev-parse --show-toplevel').strip()
@@ -13,7 +15,6 @@ class MkGit:
         "git config --file .gitmodules --get-regexp path | awk '{ print $2 }'"
     ).splitlines()
     _PATH_SUB = list()
-    _RESET = Style.RESET_ALL
 
     @classmethod
     def _get_submodules(cls):
@@ -85,9 +86,9 @@ class MkGit:
     @classmethod
     def fetch(cls, show=True):
         """ sort out current branchs """
-        prefix = cls._get_color_prefix(color='LIGHTBLUE_EX',
-                                       color_prefix=Fore.WHITE,
-                                       prefix_msg='fetch')
+        prefix = Colored.get_color_prefix(color='LIGHTBLUE_EX',
+                                          color_prefix=Fore.WHITE,
+                                          prefix_msg='fetch')
         try:
             info = subprocess.getoutput('git fetch --prune')
         except Exception:
@@ -112,24 +113,9 @@ class MkGit:
             print(msg)
 
     @classmethod
-    def _get_color_prefix(cls, color=None, color_prefix=None, prefix_msg=None):
-        prefix = prefix_msg or os.path.basename(os.getcwd())
-        color_prefix = color_prefix + getattr(Back, color) + Style.BRIGHT
-        color = getattr(Fore, color, None)
-        return (f'\n{color}'
-                f'{color_prefix}{prefix}'
-                f'{cls._RESET}'
-                f'{color}'
-                f'{cls._RESET} ')
-
-    @classmethod
-    def _draw(cls, color=None, msg=None):
-        return f'{color}{msg}{cls._RESET}'
-
-    @classmethod
     def _checkout(cls, branch):
-        colored_repo = cls._get_color_prefix(color='LIGHTBLACK_EX',
-                                             color_prefix=Fore.WHITE)
+        colored_repo = Colored.get_color_prefix(color='LIGHTBLACK_EX',
+                                                color_prefix=Fore.WHITE)
         # """ check exist """
         branchs = subprocess.getoutput(
             "git for-each-ref "
@@ -159,12 +145,14 @@ class MkGit:
                 color = Fore.RED
                 extra = f'\n{info}'
 
-            print(f'{colored_repo}{status}{cls._draw(color, branch)}{extra}')
+            print(
+                f'{colored_repo}{status}{Colored.draw(color, branch)}{extra}'
+            )
             return
 
         # """ create new branch """
-        draw_branch = cls._draw(Fore.CYAN, branch)
-        msg = cls._draw(Fore.RED, 'Not Exist')
+        draw_branch = Colored.draw(Fore.CYAN, branch)
+        msg = Colored.draw(Fore.RED, 'Not Exist')
         print(f'\n< Branch: {draw_branch} > {msg}.')
 
         click.echo(f'Do you wanna create < Branch: {draw_branch} > [y/N]:')
@@ -172,13 +160,14 @@ class MkGit:
         if create == 'y':
             info = subprocess.getoutput(f'git checkout -b {branch}')
             if 'Switched to' in info:
-                info = f'Switched to {cls._draw(Fore.YELLOW, branch)}'
+                info = f'Switched to {Colored.draw(Fore.YELLOW, branch)}'
             print(f'{colored_repo}{info}')
 
     @classmethod
     def _current_branch(cls):
-        colored_repo = cls._get_color_prefix(color='LIGHTBLACK_EX',
-                                             color_prefix=Fore.WHITE)
+        colored_repo = Colored.get_color_prefix(color='LIGHTBLACK_EX',
+                                                color_prefix=Fore.WHITE)
+        output = None
         try:
             output = str(
                 subprocess.check_output(['git', 'branch'],
@@ -186,10 +175,10 @@ class MkGit:
                                         universal_newlines=True))
             branch = [a for a in output.split('\n') if a.find('*') >= 0][0]
             current_branch = branch[branch.find('*') + 2:]
-            status = f'Stay on {cls._draw(Fore.GREEN, current_branch)}'
+            status = f'Stay on {Colored.draw(Fore.GREEN, current_branch)}'
 
         except Exception:
-            status = f'Error on {cls._draw(Fore.RED, "info")}\n{output}'
+            status = f'Error on {Colored.draw(Fore.RED, "info")}\n{output}'
 
         print(f'{colored_repo}{status}')
 
@@ -218,7 +207,7 @@ class MkGit:
                     continue
                 cls._checkout(branch=branch_name)
 
-    @classmethod
+    @ classmethod
     def _init(cls):
         if not os.path.exists(cls._PATH_MAIN_CONFIG):
             print('No Git Config Found!')
@@ -237,26 +226,28 @@ class MkGit:
         if has_files:
             return
 
-        color_prefix = cls._get_color_prefix(color='MAGENTA',
-                                             color_prefix=Fore.WHITE,
-                                             prefix_msg='init')
+        color_prefix = Colored.get_color_prefix(color='MAGENTA',
+                                                color_prefix=Fore.WHITE,
+                                                prefix_msg='init')
         print(f'{color_prefix}Git Submodeles')
         subprocess.run('git submodule update --init --recursive', shell=True)
         print(f'{color_prefix}Finished.\n')
 
-    @staticmethod
+    @ staticmethod
     def _re_pull_words(replacement, info, color):
         pattern = re.compile(rf'([{replacement}]+)([\n-)])')
         return pattern.sub(rf'{color}\1{Fore.RESET}\2', info)
 
-    @classmethod
+    @ classmethod
     def _git_pull(cls):
         info = subprocess.getoutput('git pull')
-        info = cls._re_pull_words(replacement='-', info=info, color=Fore.RED)
-        info = cls._re_pull_words(replacement='+', info=info, color=Fore.GREEN)
+        info = cls._re_pull_words(
+            replacement='-', info=info, color=Fore.RED)
+        info = cls._re_pull_words(
+            replacement='+', info=info, color=Fore.GREEN)
         print(f'{info}\n')
 
-    @classmethod
+    @ classmethod
     def pull(cls):
         """ pull all file from Git repo """
         cls._init()

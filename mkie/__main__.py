@@ -72,14 +72,32 @@ class Mkie(click.MultiCommand):
         """ pull latest update from repo """
         MkGit.pull()
 
+    @cli.command()
     @click.option('-f',
                   '--format',
-                  help='pretty print container cols, default:"{{.ID}}\t{{.Names}}\t{{.Ports}}\t{{.Image}}"')
+                  help='pretty print container cols,'
+                  'default:".ID.Names.Ports.Image"')
     @click.option('--pattern', help='rg pattern word container name')
-    @cli.command()
     def dps(format, pattern):
         """ list docker containers """
         Mkdk.ps(format=format, pattern=pattern)
+
+    @cli.command()
+    def dbu():
+        """ build docker container """
+        Mkdk.build()
+
+    @cli.command()
+    @click.argument('project', required=False)
+    def dup(project):
+        """ start docker container """
+        Mkdk.up(project=project)
+
+    @cli.command()
+    @click.argument('project', required=False)
+    def dd(project):
+        """ start docker container """
+        Mkdk.down(project=project)
 
 
 if __name__ == '__main__':
