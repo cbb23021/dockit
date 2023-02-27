@@ -28,7 +28,7 @@ class Mkdk:
 
     @classmethod
     def up(cls, project):
-        _cmd = ['docker-compose',  'up', '-d']
+        _cmd = ['docker-compose', 'up', '-d']
         if project:
             _cmd.extend(['--project-name', project])
 

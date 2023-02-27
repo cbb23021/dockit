@@ -14,10 +14,9 @@
     God Bless,Never Bug.
 """
 import click
+import mkie
 from click_help_colors import HelpColorsCommand, HelpColorsGroup
 from importlib_metadata import version
-
-import mkie
 from mkie.core.mkdk import Mkdk
 from mkie.core.mkgit import MkGit
 
@@ -68,9 +67,10 @@ class Mkie(click.MultiCommand):
         MkGit.swap(ignore=ignore, branch_name=branch_name)
 
     @cli.command()
-    def gitpull():
+    @click.option('--init', is_flag=True, help='submodules init')
+    def gitpull(init):
         """ pull latest update from repo """
-        MkGit.pull()
+        MkGit.pull(init=init)
 
     @cli.command()
     @click.option('-f',

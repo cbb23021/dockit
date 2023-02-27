@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+from pathlib import Path
 
 import click
 from colorama import Back, Fore, Style
@@ -86,8 +87,9 @@ class MkGit:
     @classmethod
     def fetch(cls, show=True):
         """ sort out current branchs """
-        prefix = Colored.get_color_prefix(color='LIGHTBLUE_EX',
-                                          color_prefix=Fore.WHITE,
+        prefix = Colored.get_color_prefix(color='YELLOW',
+                                          color_prefix=Style.RESET_ALL +
+                                          Fore.BLACK,
                                           prefix_msg='fetch')
         try:
             info = subprocess.getoutput('git fetch --prune')
@@ -146,8 +148,7 @@ class MkGit:
                 extra = f'\n{info}'
 
             print(
-                f'{colored_repo}{status}{Colored.draw(color, branch)}{extra}'
-            )
+                f'{colored_repo}{status}{Colored.draw(color, branch)}{extra}')
             return
 
         # """ create new branch """
@@ -207,15 +208,8 @@ class MkGit:
                     continue
                 cls._checkout(branch=branch_name)
 
-    @ classmethod
-    def _init(cls):
-        if not os.path.exists(cls._PATH_MAIN_CONFIG):
-            print('No Git Config Found!')
-            return
-        cls._get_submodules()
-        if not cls._PATH_SUB:
-            return
-
+    @classmethod
+    def _check_submodule_files(cls):
         has_files = None
         for path in cls._PATH_SUB:
             try:
@@ -223,37 +217,65 @@ class MkGit:
                 has_files = False if not subprocess.getoutput('ls') else True
             except Exception:
                 return
-        if has_files:
-            return
+        return has_files
+
+    @classmethod
+    def _init(cls, init=False):
+        if not init:
+            has_git = Path(f'{cls._PATH_MAIN}/.git').exists()
+            has_config = Path(cls._PATH_MAIN_CONFIG).exists()
+
+            if not has_config and not has_git:
+                print('No Git Config Found!')
+                return
+            cls._get_submodules()
+            if not cls._PATH_SUB:
+                print('No Submodeles')
+                return
+
+            # first init check submodule
+            has_files = cls._check_submodule_files()
+            if has_files:
+                return
 
         color_prefix = Colored.get_color_prefix(color='MAGENTA',
                                                 color_prefix=Fore.WHITE,
                                                 prefix_msg='init')
         print(f'{color_prefix}Git Submodeles')
         subprocess.run('git submodule update --init --recursive', shell=True)
-        print(f'{color_prefix}Finished.\n')
+        _ = Colored.draw(color=Fore.MAGENTA, msg='---')
+        print(f'{_} Finished. {_} ')
 
-    @ staticmethod
+    @staticmethod
     def _re_pull_words(replacement, info, color):
         pattern = re.compile(rf'([{replacement}]+)([\n-)])')
         return pattern.sub(rf'{color}\1{Fore.RESET}\2', info)
 
-    @ classmethod
+    @classmethod
     def _git_pull(cls):
         info = subprocess.getoutput('git pull')
-        info = cls._re_pull_words(
-            replacement='-', info=info, color=Fore.RED)
-        info = cls._re_pull_words(
-            replacement='+', info=info, color=Fore.GREEN)
+        info = cls._re_pull_words(replacement='-', info=info, color=Fore.RED)
+        info = cls._re_pull_words(replacement='+', info=info, color=Fore.GREEN)
         print(f'{info}\n')
 
-    @ classmethod
-    def pull(cls):
+    @classmethod
+    def pull(cls, init):
         """ pull all file from Git repo """
-        cls._init()
+        cls._init(init=init)
 
         os.chdir(cls._PATH_MAIN)
         cls.fetch(show=False)
+
+        color_prefix = Style.RESET_ALL + Fore.BLACK
+        bottom_prefix = Fore.WHITE + Style.BRIGHT
+        prefix = Colored.get_color_prefix(color='CYAN',
+                                          color_prefix=color_prefix,
+                                          prefix_msg='Main Module',
+                                          bottom=True,
+                                          bottom_color='LIGHTBLUE_EX',
+                                          bottom_prefix=bottom_prefix,
+                                          bottom_msg=Path.cwd().name)
+        print(prefix)
         cls._git_pull()
 
         if not cls._PATH_SUB:
@@ -263,4 +285,12 @@ class MkGit:
                 os.chdir(path)
             except Exception:
                 continue
+            prefix = Colored.get_color_prefix(color='CYAN',
+                                              color_prefix=color_prefix,
+                                              prefix_msg=' SubModule ',
+                                              bottom=True,
+                                              bottom_color='LIGHTBLUE_EX',
+                                              bottom_prefix=bottom_prefix,
+                                              bottom_msg=Path.cwd().name)
+            print(prefix)
             cls._git_pull()
