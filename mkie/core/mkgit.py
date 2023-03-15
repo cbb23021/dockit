@@ -119,10 +119,10 @@ class MkGit:
         colored_repo = Colored.get_color_prefix(color='LIGHTBLACK_EX',
                                                 color_prefix=Fore.WHITE)
         # """ check exist """
-        branchs = subprocess.getoutput(
+        branchs = set(subprocess.getoutput(
             "git for-each-ref "
-            "--sort=-committerdate refs/heads/ "
-            "--format='%(refname:short)'").splitlines()
+            "--sort=-committerdate "
+            "--format='%(refname:short)' | sed 's/^origin\///' ").splitlines())
 
         if branch in branchs:
             # """ checkout branch """
@@ -230,7 +230,6 @@ class MkGit:
                 return
             cls._get_submodules()
             if not cls._PATH_SUB:
-                print('No Submodeles')
                 return
 
             # first init check submodule
@@ -256,7 +255,7 @@ class MkGit:
         info = subprocess.getoutput('git pull')
         info = cls._re_pull_words(replacement='-', info=info, color=Fore.RED)
         info = cls._re_pull_words(replacement='+', info=info, color=Fore.GREEN)
-        print(f'{info}\n')
+        print(f'{info}')
 
     @classmethod
     def pull(cls, init):
