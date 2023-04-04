@@ -67,10 +67,10 @@ class Mkie(click.MultiCommand):
         MkGit.swap(ignore=ignore, branch_name=branch_name)
 
     @cli.command()
-    @click.option('--init', is_flag=True, help='submodules init')
+    @click.option('--init')
     def gitpull(init):
         """ pull latest update from repo """
-        MkGit.pull(init=init)
+        MkGit.pull(init)
 
     @cli.command()
     @click.option('-f',
@@ -89,15 +89,35 @@ class Mkie(click.MultiCommand):
 
     @cli.command()
     @click.argument('project', required=False)
-    def dup(project):
+    @click.option('--subpath')
+    @click.option('--filepath', help='e.q. docker-compose.yml')
+    def dup(project, subpath, filepath):
         """ start docker container """
-        Mkdk.up(project=project)
+        Mkdk.up(
+            project=project,
+            subpath=subpath,
+            filepath=filepath,
+        )
 
     @cli.command()
     @click.argument('project', required=False)
-    def dd(project):
+    @click.option('--subpath')
+    @click.option('--filepath', help='e.q. docker-compose.yml')
+    def dd(project, subpath, filepath):
         """ start docker container """
-        Mkdk.down(project=project)
+        Mkdk.down(
+            project=project,
+            subpath=subpath,
+            filepath=filepath,
+        )
+
+    @cli.command()
+    @click.argument('project', required=False)
+    @click.option('--command', help='default: bash')
+    @click.option('--list', help='list all containers', is_flag=True)
+    def drun(project, command, list):
+        """ run docker container """
+        Mkdk.run(project=project, command=command, is_list=list)
 
 
 if __name__ == '__main__':
