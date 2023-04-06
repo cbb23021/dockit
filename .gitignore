@@ -15,4 +15,5 @@ eggs/
 
 # Files to ignore
 tmp*.*
+CHANGELOG.
 
