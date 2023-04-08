@@ -76,7 +76,7 @@ class Mkdk:
         return root_path.joinpath(*sub_path, project_name, compose_path)
 
     @classmethod
-    def up(cls, project, subpath, filepath):
+    def up(cls, project, subpath, filepath, is_follow):
         """
         subpath
             - demo
@@ -98,6 +98,10 @@ class Mkdk:
             )
             _cmd.extend(['-f', str(_path)])
 
+        _cmd.append('up')
+        if is_follow:
+            _cmd.append('-d')
+
         # color log
         color_prefix = Style.RESET_ALL + Fore.BLACK
         prefix = Colored.get_color_prefix(color='LIGHTYELLOW_EX',
@@ -108,8 +112,6 @@ class Mkdk:
                                           bottom_prefix=Fore.BLACK,
                                           bottom_msg=project_name)
         print(prefix)
-        # cmd run
-        _cmd.extend(['up', '-d'])
         subprocess.run(_cmd)
 
     @classmethod
@@ -168,7 +170,7 @@ class Mkdk:
             cons = cls._parse_containers(info=info)
             project_name = cls._select_container_list(cons=cons)
         command = command or cls._DEFAULT_EXEC_COMMAND
-        _cmd = ['docker', 'exec', '-it', project, command]
+        _cmd = ['docker', 'exec', '-it', project_name, command]
         os.system('clear')
         color_prefix = Style.RESET_ALL + Fore.BLACK
         prefix = Colored.get_color_prefix(color='LIGHTCYAN_EX',

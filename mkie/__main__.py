@@ -14,9 +14,10 @@
     God Bless,Never Bug.
 """
 import click
-import mkie
 from click_help_colors import HelpColorsCommand, HelpColorsGroup
 from importlib_metadata import version
+
+import mkie
 from mkie.core.mkdk import Mkdk
 from mkie.core.mkgit import MkGit
 
@@ -91,12 +92,14 @@ class Mkie(click.MultiCommand):
     @click.argument('project', required=False)
     @click.option('--subpath')
     @click.option('--filepath', help='e.q. docker-compose.yml')
-    def dup(project, subpath, filepath):
+    @click.option('--follow', help='aviod daemon mode', is_flag=True)
+    def dup(project, subpath, filepath, follow):
         """ start docker container """
         Mkdk.up(
             project=project,
             subpath=subpath,
             filepath=filepath,
+            is_follow=follow,
         )
 
     @cli.command()
@@ -116,8 +119,27 @@ class Mkie(click.MultiCommand):
     @click.option('--command', help='default: bash')
     @click.option('--list', help='list all containers', is_flag=True)
     def drun(project, command, list):
-        """ run docker container """
-        Mkdk.run(project=project, command=command, is_list=list)
+        """
+        \b
+        run docker container
+
+        e.q.
+            tree:
+            - demo
+                |-- demo_api
+                |-- demo_dms_api
+
+            pwd -> ~/demo/demo_api
+
+            - mkie drun -> exec demo_api contaniner
+            - mkie drun demo_dms_api -> exec demo_dms_api container
+            - mkie drun --list -> list the current running container to select
+        """
+        Mkdk.run(
+            project=project,
+            command=command,
+            is_list=list,
+        )
 
 
 if __name__ == '__main__':
