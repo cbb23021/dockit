@@ -25,3 +25,10 @@ pip3 install --upgrade mkie
   - `gitfetch`: Sort out local branchs.
   - `gitpull`: Pull latest update from git repo.
   - `s`: Swap current branch to target branch.
+
+- Docker
+  - `dps`: list docker containers 
+  - `dbu`: build docker container
+  - `dup`: start docker contrainer
+  - `dd`: stop docker container
+  - `drun`: exec docker container
