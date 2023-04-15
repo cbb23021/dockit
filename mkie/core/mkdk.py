@@ -99,7 +99,7 @@ class Mkdk:
             _cmd.extend(['-f', str(_path)])
 
         _cmd.append('up')
-        if is_follow:
+        if not is_follow:
             _cmd.append('-d')
 
         # color log
