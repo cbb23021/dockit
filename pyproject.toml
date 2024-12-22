@@ -1,6 +1,6 @@
 [tool.poetry]
 name = 'mkie'
-version = '0.1.9'
+version = '0.1.10'
 description = 'A useful tool for control clis in terminal.'
 license = 'MIT'
 authors = ['Michael Chou <snoopy02m@gmail.com>']
